@@ -424,30 +424,20 @@ void PCSX::Pads::Pad::keyboardEvent(const Events::Keyboard& event) {
 
 bool PCSX::Pads::Pad::configure() {
     static std::function<const char*()> const c_inputDevices[] = {
-        []() { return _("Auto"); },
-        []() { return _("Controller"); },
-        []() { return _("Keyboard"); }
-    };
+        []() { return _("Auto"); }, []() { return _("Controller"); }, []() { return _("Keyboard"); }};
     static std::function<const char*()> const c_buttonNames[] = {
         []() { return _("Cross"); },  []() { return _("Square"); }, []() { return _("Triangle"); },
         []() { return _("Circle"); }, []() { return _("Select"); }, []() { return _("Start"); },
         []() { return _("L1"); },     []() { return _("R1"); },     []() { return _("L2"); },
-        []() { return _("R2"); }
-    };
+        []() { return _("R2"); }};
     static std::function<const char*()> const c_dpadDirections[] = {
-        []() { return _("Up"); },
-        []() { return _("Right"); },
-        []() { return _("Down"); },
-        []() { return _("Left"); }
-    };
-    static std::function<const char*()> const c_controllerTypes[] = {
-        []() { return _("Digital"); },
-        []() { return _("Analog"); },
-        []() { return _("Mouse"); },
-        []() { return _("Negcon (Unimplemented)"); },
-        []() { return _("Gun (Unimplemented)"); },
-        []() { return _("Guncon (Unimplemented"); }
-    };
+        []() { return _("Up"); }, []() { return _("Right"); }, []() { return _("Down"); }, []() { return _("Left"); }};
+    static std::function<const char*()> const c_controllerTypes[] = {[]() { return _("Digital"); },
+                                                                     []() { return _("Analog"); },
+                                                                     []() { return _("Mouse"); },
+                                                                     []() { return _("Negcon (Unimplemented)"); },
+                                                                     []() { return _("Gun (Unimplemented)"); },
+                                                                     []() { return _("Guncon (Unimplemented"); }};
 
     bool changed = false;
     changed |= ImGui::Checkbox(_("Connected"), &m_settings.get<SettingConnected>().value);
