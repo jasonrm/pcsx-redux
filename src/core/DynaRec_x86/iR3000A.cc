@@ -3222,6 +3222,8 @@ class DynaRecCPU : public PCSX::R3000Acpu {
     virtual void Shutdown() final { abort(); }
     virtual void SetPGXPMode(uint32_t pgxpMode) final { abort(); }
     virtual bool isDynarec() final { abort(); }
+    virtual const uint8_t *getBufferPtr() final { abort(); }
+    virtual const size_t getBufferSize() final { abort(); }
 };
 
 #endif
