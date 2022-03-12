@@ -403,8 +403,11 @@ void PCSX::GUI::init() {
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
-    io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
+    auto argDpiScale = m_args.get<bool>("dpi-scale", true);
+    if (argDpiScale) {
+        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
+        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
+    }
 
     ImGui_ImplGlfw_InitForOpenGL(m_window, true);
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
