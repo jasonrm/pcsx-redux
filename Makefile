@@ -55,6 +55,7 @@ CPPFLAGS_ReleaseWithTracy += -O3 -DTRACY_ENABLE
 
 ifeq ($(CC_IS_CLANG),true)
     CXXFLAGS += -fcoroutines-ts
+    CXXFLAGS += -Wno-format-security
     LUAJIT_CFLAGS = -fno-stack-check
 else
     CXXFLAGS += -fcoroutines
@@ -68,7 +69,7 @@ endif
 LDFLAGS += `pkg-config --libs $(PACKAGES)`
 
 ifeq ($(UNAME_S),Darwin)
-    LDFLAGS += -lc++ -framework GLUT -framework OpenGL -framework CoreFoundation -framework Cocoa
+    LDFLAGS += -lc++ -lc++abi -framework GLUT -framework OpenGL -framework CoreFoundation -framework Cocoa
     LDFLAGS += -mmacosx-version-min=10.15
 else
     LDFLAGS += -lstdc++fs
