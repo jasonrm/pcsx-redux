@@ -19,7 +19,7 @@ HAS_SUBMODULES = true
 endif
 
 CXXFLAGS += -std=c++2a
-CPPFLAGS += `pkg-config --cflags $(PACKAGES)`
+CPPFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 CPPFLAGS += -I.
 CPPFLAGS += -Isrc
 CPPFLAGS += -Ithird_party
@@ -66,7 +66,7 @@ ifeq ($(UNAME_S),Darwin)
     CPPFLAGS += -stdlib=libc++
 endif
 
-LDFLAGS += `pkg-config --libs $(PACKAGES)`
+LDFLAGS += $(shell pkg-config --libs $(PACKAGES))
 
 ifeq ($(UNAME_S),Darwin)
     LDFLAGS += -lc++ -lc++abi -framework GLUT -framework OpenGL -framework CoreFoundation -framework Cocoa
