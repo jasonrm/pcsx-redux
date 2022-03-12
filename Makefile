@@ -7,6 +7,16 @@ UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 CC_IS_CLANG := $(shell $(CC) --version | grep -q clang && echo true || echo false)
+FIXRPATH := touch
+
+CAPSTONE_LIBDIR=$(shell pkg-config --variable=libdir capstone)
+
+ifeq ($(UNAME_S),Darwin)
+	FIXRPATH = @install_name_tool \
+		-change libcapstone.dylib $(CAPSTONE_LIBDIR)/libcapstone.dylib \
+		-change libcapstone.3.dylib $(CAPSTONE_LIBDIR)/libcapstone.3.dylib \
+		-change libcapstone.4.dylib $(CAPSTONE_LIBDIR)/libcapstone.4.dylib
+endif
 
 PACKAGES := capstone freetype2 glfw3 libavcodec libavformat libavutil libswresample libuv zlib libcurl
 
@@ -211,6 +221,7 @@ endif
 
 $(TARGET): $(OBJECTS)
 	$(LD) -o $@ $(OBJECTS) $(LDFLAGS)
+	$(FIXRPATH) $@
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CPPFLAGS) $(EXTRA_CPPFLAGS) $(CFLAGS)
