@@ -28,6 +28,7 @@
 #include "support/eventbus.h"
 #include "support/list.h"
 #include "support/slice.h"
+#include "url.hpp"
 
 namespace PCSX {
 
@@ -39,6 +40,28 @@ struct UrlData {
     std::string query;
     std::string fragment;
     std::string userInfo;
+
+    std::string getQueryParam(std::string key, std::string defaultValue) const {
+        Url u1("?" + query);
+        for (auto kv : u1.query())
+        {
+            if (kv.key() == key) return kv.val();
+        }
+
+        return defaultValue;
+    }
+
+    unsigned int getQueryParam(std::string key, unsigned int defaultValue) const {
+        Url u1("?" + query);
+        for (auto kv : u1.query())
+        {
+            if (kv.key() != key) continue;
+            auto val = kv.val();
+            return std::stoul(val, nullptr, (val.rfind("0x", 0) == 0) ? 16 : 10);
+        }
+
+        return defaultValue;
+    }
 };
 
 struct RequestData {
