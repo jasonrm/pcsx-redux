@@ -79,3 +79,6 @@
 [submodule "third_party/vixl"]
 	path = third_party/vixl
 	url = https://github.com/wheremyfoodat/vixl
+[submodule "third_party/CxxUrl"]
+	path = third_party/CxxUrl
+	url = https://github.com/chmike/CxxUrl.git
