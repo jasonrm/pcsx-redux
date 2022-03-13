@@ -103,6 +103,7 @@ struct RequestData {
         HTTP_SOURCE,
     } method;
     std::multimap<std::string, std::string> headers;
+    Slice body;
 };
 
 class WebClient;

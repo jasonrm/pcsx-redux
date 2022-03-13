@@ -69,20 +69,22 @@ class RamExecutor : public PCSX::WebExecutor {
     }
     virtual bool execute(PCSX::WebClient* client, const PCSX::RequestData& request) final {
         const auto& ram8M = PCSX::g_emulator->settings.get<PCSX::Emulator::Setting8MB>().value;
-        if (ram8M) {
-            client->write(
-                "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: 8388608\r\n\r\n");
-        } else {
-            client->write(
-                "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: 2097152\r\n\r\n");
-        }
         uint32_t size = 1024 * 1024 * (ram8M ? 8 : 2);
-        uint8_t* data = (uint8_t*)malloc(size);
-        memcpy(data, PCSX::g_emulator->m_mem->m_psxM, size);
-        PCSX::Slice slice;
-        slice.acquire(data, size);
-        client->write(std::move(slice));
+        auto offset = request.urlData.getQueryParam("offset", 0x0) % size;
 
+        if (request.method == PCSX::RequestData::Method::HTTP_POST
+            || request.method == PCSX::RequestData::Method::HTTP_PATCH) {
+            memcpy(&PCSX::g_emulator->m_psxMem->g_psxM[offset], request.body.data(), request.body.size());
+        } else {
+            auto contentLength = size - offset;
+            auto header = fmt::format(_("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n"), contentLength);
+            client->write(header);
+            uint8_t* data = (uint8_t*)malloc(contentLength);
+            memcpy(data, &PCSX::g_emulator->m_mem->m_psxM[offset], contentLength);
+            PCSX::Slice slice;
+            slice.acquire(data, size);
+            client->write(std::move(slice));
+        }
         return true;
     }
 
@@ -258,7 +260,10 @@ struct PCSX::WebClient::WebClientImpl {
         return 0;
     }
     int onHeadersComplete() { return 0; }
-    int onBody(const Slice& slice) { return 0; }
+    int onBody(const Slice& slice) {
+        m_requestData.body.concatenate(slice);
+        return 0;
+    }
     int onMessageComplete() { return executeRequest(); }
     int onChunkHeader() { return 0; }
     int onChunkComplete() { return 0; }
