@@ -661,6 +661,21 @@ void PCSX::GUI::startFrame() {
             setRawMouseMotion(!isRawMouseMotionEnabled());
         }
     }
+    if (io.KeyCtrl) {
+        if (ImGui::IsKeyPressed(GLFW_KEY_A)) {
+            m_assembly.m_show = !m_assembly.m_show;
+        } else if (ImGui::IsKeyPressed(GLFW_KEY_B)) {
+            m_breakpoints.m_show = !m_breakpoints.m_show;
+        } else if (ImGui::IsKeyPressed(GLFW_KEY_R)) {
+            m_registers.m_show = !m_registers.m_show;
+        } else if (ImGui::IsKeyPressed(GLFW_KEY_S)) {
+            m_callstacks.m_show = !m_callstacks.m_show;
+        } else if (ImGui::IsKeyPressed(GLFW_KEY_L)) {
+            m_log.m_show = !m_log.m_show;
+        } else if (ImGui::IsKeyPressed(GLFW_KEY_M)) {
+            m_mainMemEditors[0].show = !m_mainMemEditors[0].show;
+        }
+    }
 
     if (ImGui::IsKeyPressed(GLFW_KEY_F1)) {  // Save to quick-save slot
         zstr::ofstream save(buildSaveStateFilename(0), std::ios::binary);
@@ -670,6 +685,31 @@ void PCSX::GUI::startFrame() {
     if (ImGui::IsKeyPressed(GLFW_KEY_F2)) {  // Load from quick-save slot
         const auto saveStateName = buildSaveStateFilename(0);
         loadSaveState(saveStateName);
+    }
+
+    std::vector<int> saveSlotKeys = {
+        GLFW_KEY_1,
+        GLFW_KEY_2,
+        GLFW_KEY_3,
+        GLFW_KEY_4,
+        GLFW_KEY_5,
+        GLFW_KEY_6,
+        GLFW_KEY_7,
+        GLFW_KEY_8,
+        GLFW_KEY_9,
+        GLFW_KEY_0,
+    };
+    for (int i = 0; i < saveSlotKeys.size(); i++) {
+        if (!ImGui::IsKeyPressed(saveSlotKeys[i])) continue;
+        const auto saveStateName = buildSaveStateFilename((i + 1) % 10);
+        if (io.KeyShift) {
+            zstr::ofstream save(saveStateName, std::ios::binary);
+            save << SaveStates::save();
+            g_system->log(LogClass::UI, "Save state: %s\n", saveStateName);
+        } else {
+            loadSaveState(saveStateName);
+            g_system->log(LogClass::UI, "Load state: %s\n", saveStateName);
+        }
     }
 
     if (!g_system->running()) {
@@ -931,8 +971,8 @@ void PCSX::GUI::endFrame() {
                     }
                     ImGui::EndMenu();
                 }
-                ImGui::MenuItem(_("Show Registers"), nullptr, &m_registers.m_show);
-                ImGui::MenuItem(_("Show Assembly"), nullptr, &m_assembly.m_show);
+                ImGui::MenuItem(_("Show Registers"), "Ctrl-R", &m_registers.m_show);
+                ImGui::MenuItem(_("Show Assembly"), "Ctrl-A", &m_assembly.m_show);
                 if (PCSX::g_emulator->m_cpu->isDynarec()) {
                     ImGui::MenuItem(_("Show DynaRec Disassembly"), nullptr, &m_disassembly.m_show);
                 } else {
@@ -941,8 +981,8 @@ void PCSX::GUI::endFrame() {
                         _(R"(DynaRec Disassembler is not available in Interpreted CPU mode. Try enabling [Dynarec CPU]
 in Configuration->Emulation, restart PCSX-Redux, then try again.)"));
                 }
-                ImGui::MenuItem(_("Show Breakpoints"), nullptr, &m_breakpoints.m_show);
-                ImGui::MenuItem(_("Show Callstacks"), nullptr, &m_callstacks.m_show);
+                ImGui::MenuItem(_("Show Breakpoints"), "Ctrl-B", &m_breakpoints.m_show);
+                ImGui::MenuItem(_("Show Callstacks"), "Ctrl-S", &m_callstacks.m_show);
                 ImGui::MenuItem(_("Breakpoint on vsync"), nullptr, &m_breakOnVSync);
                 if (ImGui::BeginMenu(_("Memory Editors"))) {
                     for (auto& editor : m_mainMemEditors) {
