@@ -240,7 +240,6 @@ void PCSX::Widgets::MemoryObserver::draw(const char* title) {
             if (ImGui::BeginTable("Found values", 2, tableFlags)) {
                 ImGui::TableSetupColumn("Address");
                 ImGui::TableSetupColumn("Current value");
-                ImGui::TableSetupColumn("Access");
                 ImGui::TableHeadersRow();
 
                 ImGuiListClipper clipper;
