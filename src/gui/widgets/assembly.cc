@@ -660,6 +660,11 @@ void PCSX::Widgets::Assembly::draw(GUI* gui, psxRegisters* registers, Memory* me
                         ImGui::CloseCurrentPopup();
                         g_system->resume();
                     });
+                    DButton(_("Copy Address"), !hasBP, [&]() mutable {
+                        std::string addressString = fmt::format(_("0x{:08x}"), dispAddr);
+                        ImGui::SetClipboardText(addressString.c_str());
+                        ImGui::CloseCurrentPopup();
+                    });
                     DButton(_("Set Breakpoint here"), !hasBP, [&]() mutable {
                         g_emulator->m_debug->addBreakpoint(dispAddr, Debug::BreakpointType::Exec, 4, _("GUI"));
                         ImGui::CloseCurrentPopup();
