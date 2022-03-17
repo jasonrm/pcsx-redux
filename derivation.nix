@@ -1,4 +1,5 @@
-{ lib, stdenv, darwin, fetchFromGitHub
+{ src ? ./.
+, lib, stdenv, darwin
 , pkg-config, imagemagick
 , capstone, ffmpeg, freetype, glfw, libuv, zlib, curl
 }:
@@ -6,7 +7,7 @@
 stdenv.mkDerivation {
   name = "pcsx-redux";
 
-  src = ./.;
+  inherit src;
 
   preConfigure = ''
     export MAKEFLAGS=-j$NIX_BUILD_CORES
