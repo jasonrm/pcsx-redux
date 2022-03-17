@@ -687,28 +687,30 @@ void PCSX::GUI::startFrame() {
         loadSaveState(saveStateName);
     }
 
-    std::vector<int> saveSlotKeys = {
-        GLFW_KEY_1,
-        GLFW_KEY_2,
-        GLFW_KEY_3,
-        GLFW_KEY_4,
-        GLFW_KEY_5,
-        GLFW_KEY_6,
-        GLFW_KEY_7,
-        GLFW_KEY_8,
-        GLFW_KEY_9,
-        GLFW_KEY_0,
-    };
-    for (int i = 0; i < saveSlotKeys.size(); i++) {
-        if (!ImGui::IsKeyPressed(saveSlotKeys[i])) continue;
-        const auto saveStateName = buildSaveStateFilename((i + 1) % 10);
-        if (io.KeyShift) {
-            zstr::ofstream save(saveStateName, std::ios::binary);
-            save << SaveStates::save();
-            g_system->log(LogClass::UI, "Save state: %s\n", saveStateName);
-        } else {
-            loadSaveState(saveStateName);
-            g_system->log(LogClass::UI, "Load state: %s\n", saveStateName);
+    if (io.KeyShift || io.KeyCtrl) {
+        std::vector<int> saveSlotKeys = {
+            GLFW_KEY_1,
+            GLFW_KEY_2,
+            GLFW_KEY_3,
+            GLFW_KEY_4,
+            GLFW_KEY_5,
+            GLFW_KEY_6,
+            GLFW_KEY_7,
+            GLFW_KEY_8,
+            GLFW_KEY_9,
+            GLFW_KEY_0,
+        };
+        for (int i = 0; i < saveSlotKeys.size(); i++) {
+            if (!ImGui::IsKeyPressed(saveSlotKeys[i])) continue;
+            const auto saveStateName = buildSaveStateFilename((i + 1) % 10);
+            if (io.KeyShift) {
+                loadSaveState(saveStateName);
+                g_system->log(LogClass::UI, "Load state: %s\n", saveStateName);
+            } else if (io.KeyCtrl) {
+                zstr::ofstream save(saveStateName, std::ios::binary);
+                save << SaveStates::save();
+                g_system->log(LogClass::UI, "Save state: %s\n", saveStateName);
+            }
         }
     }
 
