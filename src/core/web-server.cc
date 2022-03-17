@@ -27,6 +27,9 @@
 #include "core/psxemulator.h"
 #include "core/psxmem.h"
 #include "core/system.h"
+#include "core/callstacks.h"
+#include "core/r3000a.h"
+#include "core/debug.h"
 #include "http-parser/http_parser.h"
 #include "support/hashtable.h"
 
@@ -74,7 +77,21 @@ class RamExecutor : public PCSX::WebExecutor {
 
         if (request.method == PCSX::RequestData::Method::HTTP_POST
             || request.method == PCSX::RequestData::Method::HTTP_PATCH) {
-            memcpy(&PCSX::g_emulator->m_psxMem->g_psxM[offset], request.body.data(), request.body.size());
+            auto skip = request.urlData.getQueryParam("skip", 0x0) % size;
+            auto PC = request.urlData.getQueryParam("PC", 0x0) % 0x8FFFFFFF;
+
+            memcpy(&PCSX::g_emulator->m_mem->m_psxM[offset], ((char*)request.body.data()) + skip, request.body.size());
+            if (PC > 0) {
+                auto& regs = PCSX::g_emulator->m_cpu->m_regs;
+                uint32_t oldPC = regs.pc;
+
+                regs.pc = PC;
+                regs.GPR.n.ra = 0xbfc00000;
+
+                PCSX::g_emulator->m_callStacks->potentialRA(regs.pc, regs.GPR.n.sp);
+                PCSX::g_emulator->m_debug->updatedPC(regs.pc);
+                PCSX::g_system->log(PCSX::LogClass::UI, "Successful: new PC = %08x...\n", regs.pc);
+            }
         } else {
             auto contentLength = size - offset;
             auto header = fmt::format(_("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n"), contentLength);
