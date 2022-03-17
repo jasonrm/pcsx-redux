@@ -35,6 +35,7 @@ vsprojects/packages
 
 # Linux files
 *.o
+*.o.tmp
 *.dep
 /pcsx-redux
 /pcsx.json
